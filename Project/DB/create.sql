@@ -33,6 +33,7 @@ CREATE TABLE public."Order"
     send_dep character varying(256) NOT NULL,
     recieve_dep character varying(256) NOT NULL,
     size character varying(4) NOT NULL,
+    price Numeric NOT NULL,
     status boolean NOT NULL,
     PRIMARY KEY (id)
 );
