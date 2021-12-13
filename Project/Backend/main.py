@@ -73,66 +73,66 @@ class Order(db.Model):
         self.size = size
         self.status = status
 
-def update_orders_status(from_dep, to_dep):
-    orders_dict = []
-    orders = Order.query.filter_by(send_dep = from_dep, recieve_dep = to_dep, status=False).all()
-    orders_amount = len(orders_dict)
-    i = 0
-    for order in orders:
-        orders_dict.append(tuple([order.id, tuple([order.size, orders_amount - i])]))
-        i += 1
+# def update_orders_status(from_dep, to_dep):
+#     orders_dict = []
+#     orders = Order.query.filter_by(send_dep = from_dep, recieve_dep = to_dep, status=False).all()
+#     orders_amount = len(orders_dict)
+#     i = 0
+#     for order in orders:
+#         orders_dict.append(tuple([order.id, tuple([order.size, orders_amount - i])]))
+#         i += 1
 
-    orders_dict = dict(orders_dict)
+#     orders_dict = dict(orders_dict)
     
-    volume = []
-    value = []
-    for item in orders_dict:
-        volume.append(orders_dict[item][0])
-        value.append(orders_dict[item][1])
+#     volume = []
+#     value = []
+#     for item in orders_dict:
+#         volume.append(orders_dict[item][0])
+#         value.append(orders_dict[item][1])
 
-    Truck_volume = 32
-    orders_amount = len(orders_dict)
-    V = [[0 for a in range(Truck_volume + 1)] for i in range(orders_amount + 1)]
+#     Truck_volume = 32
+#     orders_amount = len(orders_dict)
+#     V = [[0 for a in range(Truck_volume + 1)] for i in range(orders_amount + 1)]
 
-    for i in range(orders_amount + 1):
-        for a in range(Truck_volume + 1):
-            if i == 0 or a == 0:
-                V[i][a] = 0
-            elif volume[i-1] <= a:
-                V[i][a] = max(value[i-1] + V[i-1][a-volume[i-1]], V[i-1][a])
-            else:
-                V[i][a] = V[i-1][a] 
+#     for i in range(orders_amount + 1):
+#         for a in range(Truck_volume + 1):
+#             if i == 0 or a == 0:
+#                 V[i][a] = 0
+#             elif volume[i-1] <= a:
+#                 V[i][a] = max(value[i-1] + V[i-1][a-volume[i-1]], V[i-1][a])
+#             else:
+#                 V[i][a] = V[i-1][a] 
 
-    res = V[orders_amount][Truck_volume]
-    a = Truck_volume
-    totalvolume = 0
-    orders_list = []
+#     res = V[orders_amount][Truck_volume]
+#     a = Truck_volume
+#     totalvolume = 0
+#     orders_list = []
     
-    for i in range(orders_amount, 0, -1):
-        if res <= 0:
-            break
-        print
-        if res == V[i-1][a]:
-            continue
-        else:
-            orders_list.append((volume[i-1], value[i-1]))
-            totalvolume += volume[i-1]
-            res -= value[i-1]
-            a -= volume[i-1]
+#     for i in range(orders_amount, 0, -1):
+#         if res <= 0:
+#             break
+#         print
+#         if res == V[i-1][a]:
+#             continue
+#         else:
+#             orders_list.append((volume[i-1], value[i-1]))
+#             totalvolume += volume[i-1]
+#             res -= value[i-1]
+#             a -= volume[i-1]
             
-    selected_orders = []
+#     selected_orders = []
 
-    for search in orders_list:
-        for key, value in orders_dict.items():
-            if value[0] == search:
-                selected_orders.append(key)
-    print(selected_orders)   
+#     for search in orders_list:
+#         for key, value in orders_dict.items():
+#             if value[0] == search:
+#                 selected_orders.append(key)
+#     print(selected_orders)   
     
 
 
 @app.route('/')
 def index():
-	return render_template('main_page.html')
+	return render_template('index.html', USER_ROLE = SESSION_USER.role)
 
 
 @app.route('/user/registrate_user', methods=['POST'])
@@ -235,4 +235,4 @@ def create_order():
 
 if __name__ == "__main__":
     db.create_all()
-    update_orders_status("1 str", "2 str")
+    # update_orders_status("1 str", "2 str")
