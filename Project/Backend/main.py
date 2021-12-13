@@ -18,8 +18,6 @@ app.config['SECRET_KEY'] = "string"
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
-SESSION_USER = None
-
 class Department(db.Model):
     __tablename__ = "department"
     adress = db.Column(db.String(256), primary_key = True)
@@ -64,71 +62,70 @@ class Order(db.Model):
     price = db.Column(db.Numeric(5,2), nullable = False)
     status = db.Column(db.Boolean, nullable = False)
 
-    def __init__(self, id, sender, reciever, send_dep, recieve_dep, size, status):
+    def __init__(self, id, sender, reciever, send_dep, recieve_dep, size, price, status):
         self.id = id
         self.sender = sender
         self.reciever = reciever
         self.send_dep = send_dep
         self.recieve_dep = recieve_dep
         self.size = size
+        self.price = price
         self.status = status
 
-# def update_orders_status(from_dep, to_dep):
-#     orders_dict = []
-#     orders = Order.query.filter_by(send_dep = from_dep, recieve_dep = to_dep, status=False).all()
-#     orders_amount = len(orders_dict)
-#     i = 0
-#     for order in orders:
-#         orders_dict.append(tuple([order.id, tuple([order.size, orders_amount - i])]))
-#         i += 1
+SESSION_USER = User('','','','','')
 
-#     orders_dict = dict(orders_dict)
+def update_orders_status(from_dep, to_dep):
+    orders_dict = []
+    orders = Order.query.filter_by(send_dep = from_dep, recieve_dep = to_dep, status=False)
+    orders_amount = orders.count()
+    i = 0
+    for order in orders:
+        orders_dict.append(tuple([order.id, tuple([order.size, orders_amount - i])]))
+        i += 1
+
+    orders_dict = dict(orders_dict)
     
-#     volume = []
-#     value = []
-#     for item in orders_dict:
-#         volume.append(orders_dict[item][0])
-#         value.append(orders_dict[item][1])
+    volume = []
+    value = []
+    for item in orders_dict:
+        volume.append(orders_dict[item][0])
+        value.append(orders_dict[item][1])
 
-#     Truck_volume = 32
-#     orders_amount = len(orders_dict)
-#     V = [[0 for a in range(Truck_volume + 1)] for i in range(orders_amount + 1)]
+    Truck_volume = 32
+    V = [[0 for a in range(Truck_volume + 1)] for i in range(orders_amount + 1)]
 
-#     for i in range(orders_amount + 1):
-#         for a in range(Truck_volume + 1):
-#             if i == 0 or a == 0:
-#                 V[i][a] = 0
-#             elif volume[i-1] <= a:
-#                 V[i][a] = max(value[i-1] + V[i-1][a-volume[i-1]], V[i-1][a])
-#             else:
-#                 V[i][a] = V[i-1][a] 
+    for i in range(orders_amount + 1):
+        for a in range(Truck_volume + 1):
+            if i == 0 or a == 0:
+                V[i][a] = 0
+            elif volume[i-1] <= a:
+                V[i][a] = max(value[i-1] + V[i-1][a-volume[i-1]], V[i-1][a])
+            else:
+                V[i][a] = V[i-1][a] 
 
-#     res = V[orders_amount][Truck_volume]
-#     a = Truck_volume
-#     totalvolume = 0
-#     orders_list = []
+    res = V[orders_amount][Truck_volume]
+    a = Truck_volume
+    totalvolume = 0
+    orders_list = []
     
-#     for i in range(orders_amount, 0, -1):
-#         if res <= 0:
-#             break
-#         print
-#         if res == V[i-1][a]:
-#             continue
-#         else:
-#             orders_list.append((volume[i-1], value[i-1]))
-#             totalvolume += volume[i-1]
-#             res -= value[i-1]
-#             a -= volume[i-1]
-            
-#     selected_orders = []
+    for i in range(orders_amount, 0, -1):
+        if res <= 0 or totalvolume >= Truck_volume:
+            break
+        if res == V[i-1][a]:
+            continue
+        else:
+            orders_list.append((volume[i-1], value[i-1]))
+            totalvolume += volume[i-1]
+            res -= value[i-1]
+            a -= volume[i-1]
 
-#     for search in orders_list:
-#         for key, value in orders_dict.items():
-#             if value[0] == search:
-#                 selected_orders.append(key)
-#     print(selected_orders)   
-    
-
+    if totalvolume == Truck_volume:
+        for search in orders_list:
+            for key, value in orders_dict.items():
+                if value == search:
+                    print(key)
+                    Order.query.filter_by(id = key).update({'status': True})
+        db.session.commit()
 
 @app.route('/')
 def index():
@@ -220,19 +217,38 @@ def create_order():
                 send_dep = request.form['send_dep']
                 recieve_dep = request.form['recieve_dep']
                 size = request.form['size']
-                distance = Distance.query.filter_by(first_dep = send_dep, second_dep=recieve_dep)
-                # if not distance:
-                    #price = distance.distance * 10 * math.log2(size)
-                # else:
-                #     flash("There is no distance setuped for choosen departments", "Error")
-                order = Order(sender, reciever, send_dep, recieve_dep, size, False)
+                distance = Distance.query.filter_by(first_dep = send_dep, second_dep=recieve_dep).first()
+                if distance.distance:
+                    price  = distance.distance * math.log2(size)
+                else:
+                    flash("There is no distance setuped for choosen departments", "Error")
+                order = Order(sender, reciever, send_dep, recieve_dep, size, price, False)
                 db.session.add(order)
+                db.session.commit()
+                update_orders_status(send_dep, recieve_dep)
             except:
                 flash('Something went wrong with order creation.', 'Error')
         db.session.commit()
         return redirect(url_for("index"))
     return redirect(url_for("order_create"))
 
+@app.route('/department/add_department_distance', methods=['POST'])
+def add_department_distance():
+    if (request.method == 'POST'):
+        if not request.form['first_dep'] or not request.form['second_dep'] or not request.form['distance']:
+            flash('Please, enter all the required fields', 'Error')
+        else:
+            try:
+                first_dep = request.form['first_dep']
+                second_dep = request.form['second_dep']
+                distance_1_2 = request.form['distance']
+                distance = Distance(first_dep, second_dep, distance_1_2)
+                db.session.add(distance)
+            except:
+                flash('Something went wrong with saving distance.', 'Error')
+        return redirect(url_for("index"))
+    return redirect(url_for("login"))
+
 if __name__ == "__main__":
     db.create_all()
-    # update_orders_status("1 str", "2 str")
+    app.run(debug=True)
