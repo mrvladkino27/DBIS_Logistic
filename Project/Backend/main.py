@@ -1,14 +1,14 @@
-from flask import Flask, request, flash, url_for, redirect, render_template
+from flask import Flask, request, flash, url_for, redirect, render_template, send_from_directory
 from hashlib import sha256
 from flask_sqlalchemy import SQLAlchemy
 import math
-import itertools
+import os
 
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
+app.config['UPLOAD_FOLDER'] = 'Project/Backend/Download/'
+ 
 
 # uri = os.environ['DATABASE_URL']
 # if uri.startswith("postgres://"):
@@ -74,10 +74,12 @@ class Order(db.Model):
         self.price = price
         self.status = status
 
-# SESSION_USER = User('','','','','')
+SESSION_USER = User('','','','','')
 
-SESSION_USER = User('','','','','WORKER')
-
+# SESSION_USER = User('','','','','WORKER')
+size_text = {2: 'S', 4: 'M', 8:'L', 16:'XL'}
+status_text = {False: 'В обробці', True: 'Доставлено'}
+department_text = {1: ''}
 
 def update_orders_status(from_dep, to_dep):
     orders_dict = []
@@ -134,7 +136,10 @@ def update_orders_status(from_dep, to_dep):
 
 @app.route('/')
 def index():
-	return render_template('index.html', USER_ROLE = SESSION_USER.role)
+    if SESSION_USER.role != '':
+        return render_template('index.html', USER_ROLE = SESSION_USER.role)
+    else:
+        return render_template('reg.html')
 
 @app.route('/reg')
 def show_reg(page=1):
@@ -155,26 +160,29 @@ def show_create_ord(page=1):
 @app.route('/user/registrate_user', methods=['POST'])
 def registrate_user():
     if request.method == 'POST':
-        if not request.form['email'] or not request.form['password'] or not request.form['department']:
-            flash('Please, enter all the required fields', 'Error')
-        elif User.query.filter_by(email=request.form['email']).first() is not None:
-            flash('User with this e-mail already exists', 'Error')
+        if request.form['password'] == request.form['confirm_password']:
+            if not request.form['email'] or not request.form['password'] or not request.form['department']:
+                flash('Please, enter all the required fields', 'Error')
+            elif User.query.filter_by(email=request.form['email']).first() is not None:
+                flash('User with this e-mail already exists', 'Error')
+            else:
+                try:
+                    email = request.form['email']
+                    password = sha256(request.form['password'].encode())
+                    if request.form['name']:
+                        name = request.form['name']
+                    else:
+                        name = None
+                    department = request.form['department']
+                    role = "User"
+                    user = User(email, password, name, department, role)
+                    db.session.add(user)
+                except:
+                    flash('Something went wrong with registration.', 'Error')
+            db.session.commit()
+            return redirect(url_for("index"))
         else:
-            try:
-                email = request.form['email']
-                password = sha256(request.form['password'].encode())
-                if request.form['name']:
-                    name = request.form['name']
-                else:
-                    name = None
-                department = request.form['department']
-                role = "User"
-                user = User(email, password, name, department, role)
-                db.session.add(user)
-            except:
-                flash('Something went wrong with registration.', 'Error')
-        db.session.commit()
-        return redirect(url_for("index"))
+            flash("Паролі не відповідають один одному", "Error")
     return redirect(url_for("registrate_user"))
 
 @app.route('/user/registrate_worker', methods=['POST'])
@@ -198,6 +206,33 @@ def registrate_worker():
                 db.session.add(worker)
             except:
                 flash('Something went wrong with registration.', 'Error')
+        db.session.commit()
+        return redirect(url_for("index"))
+    return redirect(url_for("registrate_user"))
+
+
+@app.route('/user/edit_user', methods=['POST'])
+def update_user():
+    if request.method == 'POST':
+        if not request.form['email'] or not request.form['password'] or not request.form['department']:
+            flash('Please, enter all the required fields', 'Error')
+        elif SESSION_USER.role != '':
+            try:
+                user = User.query.filter_by(email=SESSION_USER.email).first()
+                db.session.delete(user)
+                email = request.form['email']
+                password = sha256(request.form['password'].encode())
+                if request.form['name'] != '':
+                    name = request.form['name']
+                else:
+                    name = None
+                department = request.form['department']
+                user = User(email, password, name, department, SESSION_USER.role)
+                db.session.add(user)
+            except:
+                flash('Something went wrong with editing user information.', 'Error')
+        else:
+            flash('You need to log in to edit user info', 'Error')
         db.session.commit()
         return redirect(url_for("index"))
     return redirect(url_for("registrate_user"))
@@ -232,6 +267,7 @@ def create_order():
             flash('Please, enter all the required fields', 'Error')
         else:
             try:
+                id = Order.query.order_by(Order.id.desc()).first().id + 1
                 sender = request.form['sender']
                 reciever = request.form['reciever']
                 send_dep = request.form['send_dep']
@@ -239,10 +275,10 @@ def create_order():
                 size = request.form['size']
                 distance = Distance.query.filter_by(first_dep = send_dep, second_dep=recieve_dep).first()
                 if distance.distance:
-                    price  = distance.distance * math.log2(size)
+                    price  = 30 + ( 0.35 * distance.distance * math.log2(size) )
                 else:
                     flash("There is no distance setuped for choosen departments", "Error")
-                order = Order(sender, reciever, send_dep, recieve_dep, size, price, False)
+                order = Order(id, sender, reciever, send_dep, recieve_dep, size, price, False)
                 db.session.add(order)
                 db.session.commit()
                 update_orders_status(send_dep, recieve_dep)
@@ -251,6 +287,43 @@ def create_order():
         db.session.commit()
         return redirect(url_for("index"))
     return redirect(url_for("order_create"))
+
+@app.route('/download_invoice')
+def download_invoice():
+    # if request.method == 'GET':
+        # id = request.form['id']
+    id = 15
+    if not id:
+        flash('Please, select order you want to generate invoice.', 'Error')
+    else:
+        # id = request.form['id']
+        id = 21
+        order = Order.query.filter_by(id = id).first()
+        distance = Distance.query.filter_by(first_dep = order.send_dep, second_dep = order.recieve_dep).first()
+        if not distance.distance:
+            flash("There is no distance setuped for choosen departments", "Error")
+        file_name = f"Invoice_{id}.txt"
+
+        for file in os.listdir(app.root_path.replace('\\','/') + app.config['UPLOAD_FOLDER']):
+            os.remove(app.root_path.replace('\\','/') + app.config['UPLOAD_FOLDER'], file)
+
+        with open(app.config['UPLOAD_FOLDER'] + file_name, encoding='utf-8', mode='w') as download_file:
+            download_file.write(f"{' '*20}Логістична компанія{' '*10}\n\n")
+            download_file.write(f"{'='*15} Накладна відправлення №{id} {'='*15}\n")
+            download_file.write(f"Від: '{order.sender}'\t     -  \tКому: '{order.reciever}'\n")
+            download_file.write(f"Пункт відправлення: {order.send_dep}    -  \tПункт одержання:{order.recieve_dep}\n\n")
+            download_file.write(f"Відстань між пунктами відправлення: {distance.distance}\n")
+            download_file.write(f"Розмір відправлення: {size_text[order.size]}\n")
+            download_file.write(f"Статус відправлення: {status_text[order.status]}\n")
+            download_file.write(f"{'_'*60}\nВартість послуги: {order.price}")
+
+        return send_from_directory(directory = app.config['UPLOAD_FOLDER'], path = app.root_path.replace('\\','/'), filename = file_name, as_attachment = True)
+        
+            # if :
+            #     print(f"{'+'*10}")
+            # print(app.root_path)
+    return redirect(url_for("index"))
+    # return redirect(url_for("download_invoice"))
 
 @app.route('/department/add_department_distance', methods=['POST'])
 def add_department_distance():
@@ -270,5 +343,5 @@ def add_department_distance():
     return redirect(url_for("login"))
 
 if __name__ == "__main__":
-    db.create_all()
+    # db.create_all()
     app.run(debug=True)
