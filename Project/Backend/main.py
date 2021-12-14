@@ -7,7 +7,7 @@ import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
-app.config['UPLOAD_FOLDER'] = 'Project/Backend/Download/'
+app.config['UPLOAD_FOLDER'] = 'Download\\'
  
 
 # uri = os.environ['DATABASE_URL']
@@ -79,7 +79,7 @@ SESSION_USER = User('','','','','')
 # SESSION_USER = User('','','','','WORKER')
 size_text = {2: 'S', 4: 'M', 8:'L', 16:'XL'}
 status_text = {False: 'В обробці', True: 'Доставлено'}
-department_text = {1: ''}
+
 
 def update_orders_status(from_dep, to_dep):
     orders_dict = []
@@ -162,9 +162,9 @@ def registrate_user():
     if request.method == 'POST':
         if request.form['password'] == request.form['confirm_password']:
             if not request.form['email'] or not request.form['password'] or not request.form['department']:
-                flash('Please, enter all the required fields', 'Error')
+                flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
             elif User.query.filter_by(email=request.form['email']).first() is not None:
-                flash('User with this e-mail already exists', 'Error')
+                flash('Користувача з таким e-mail вже зараєстровано в системі.', 'Error')
             else:
                 try:
                     email = request.form['email']
@@ -178,7 +178,7 @@ def registrate_user():
                     user = User(email, password, name, department, role)
                     db.session.add(user)
                 except:
-                    flash('Something went wrong with registration.', 'Error')
+                    flash('Виникли деякі проблеми з реєстрацією користувача.', 'Error')
             db.session.commit()
             return redirect(url_for("index"))
         else:
@@ -189,7 +189,7 @@ def registrate_user():
 def registrate_worker():
     if request.method == 'POST':
         if not request.form['email'] or not request.form['password'] or not request.form['department']:
-            flash('Please, enter all the required fields', 'Error')
+            flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
         elif User.query.filter_by(email=request.form['email']).first() is not None:
             flash('User with this e-mail already exists', 'Error')
         else:
@@ -215,7 +215,7 @@ def registrate_worker():
 def update_user():
     if request.method == 'POST':
         if not request.form['email'] or not request.form['password'] or not request.form['department']:
-            flash('Please, enter all the required fields', 'Error')
+            flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
         elif SESSION_USER.role != '':
             try:
                 user = User.query.filter_by(email=SESSION_USER.email).first()
@@ -241,7 +241,7 @@ def update_user():
 def login():
     if request.method == 'GET':
         if not request.form['email'] or not request.form['password']:
-            flash('Please, enter all the required fields', 'Error')
+            flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
         else:
             try:
                 email = request.form['email']
@@ -264,7 +264,7 @@ def login():
 def create_order():
     if request.method == 'POST':
         if not request.form['sender'] or not request.form['reciever'] or not request.form['send_dep'] or not request.form['recieve_dep'] or not request.form['size']:
-            flash('Please, enter all the required fields', 'Error')
+            flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
         else:
             try:
                 id = Order.query.order_by(Order.id.desc()).first().id + 1
@@ -290,46 +290,39 @@ def create_order():
 
 @app.route('/download_invoice')
 def download_invoice():
-    # if request.method == 'GET':
-        # id = request.form['id']
-    id = 15
-    if not id:
-        flash('Please, select order you want to generate invoice.', 'Error')
-    else:
-        # id = request.form['id']
-        id = 21
-        order = Order.query.filter_by(id = id).first()
-        distance = Distance.query.filter_by(first_dep = order.send_dep, second_dep = order.recieve_dep).first()
-        if not distance.distance:
-            flash("There is no distance setuped for choosen departments", "Error")
-        file_name = f"Invoice_{id}.txt"
+    if request.method == 'GET':
+        id = request.form['id']
+        if not id:
+            flash('Будь ласка, оберіть замовлення для якого згенеруються накладна.', 'Error')
+        else:
+            order = Order.query.filter_by(id = id).first()
+            distance = Distance.query.filter_by(first_dep = order.send_dep, second_dep = order.recieve_dep).first()
+            if not distance.distance:
+                flash("У базі немає відомомстей про відстані між обраними відділеннями.", "Error")
+            file_name = f"Invoice_{id}.txt"
 
-        for file in os.listdir(app.root_path.replace('\\','/') + app.config['UPLOAD_FOLDER']):
-            os.remove(app.root_path.replace('\\','/') + app.config['UPLOAD_FOLDER'], file)
+            for file in os.listdir(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])):
+                os.remove(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], file))
 
-        with open(app.config['UPLOAD_FOLDER'] + file_name, encoding='utf-8', mode='w') as download_file:
-            download_file.write(f"{' '*20}Логістична компанія{' '*10}\n\n")
-            download_file.write(f"{'='*15} Накладна відправлення №{id} {'='*15}\n")
-            download_file.write(f"Від: '{order.sender}'\t     -  \tКому: '{order.reciever}'\n")
-            download_file.write(f"Пункт відправлення: {order.send_dep}    -  \tПункт одержання:{order.recieve_dep}\n\n")
-            download_file.write(f"Відстань між пунктами відправлення: {distance.distance}\n")
-            download_file.write(f"Розмір відправлення: {size_text[order.size]}\n")
-            download_file.write(f"Статус відправлення: {status_text[order.status]}\n")
-            download_file.write(f"{'_'*60}\nВартість послуги: {order.price}")
+            with open(os.path.join(app.root_path, app.config['UPLOAD_FOLDER']).replace('\\','/') + file_name, encoding='utf-8', mode='w') as download_file:
+                download_file.write(f"\n{'='*60}\n{' '*20}Логістична компанія{' '*10}\n")
+                download_file.write(f"{'='*16} Накладна відправлення №{id} {'='*16}\n\n")
+                download_file.write(f"Від: '{order.sender}'\t     ->  \tКому: '{order.reciever}'\n")
+                download_file.write(f"Пункт відправлення: {order.send_dep}    ->  \tПункт одержання:{order.recieve_dep}\n\n")
+                download_file.write(f"Відстань між пунктами відправлення: {distance.distance}\n")
+                download_file.write(f"Розмір відправлення: {size_text[order.size]}\n")
+                download_file.write(f"Статус відправлення: {status_text[order.status]}\n")
+                download_file.write(f"{'_'*60}\nВартість послуги: {order.price}\n")
 
-        return send_from_directory(directory = app.config['UPLOAD_FOLDER'], path = app.root_path.replace('\\','/'), filename = file_name, as_attachment = True)
-        
-            # if :
-            #     print(f"{'+'*10}")
-            # print(app.root_path)
-    return redirect(url_for("index"))
-    # return redirect(url_for("download_invoice"))
+            return send_from_directory(directory = app.config['UPLOAD_FOLDER'], path = app.root_path.replace('\\','/'), filename = file_name, as_attachment = True)
+        return redirect(url_for("index"))
+    return redirect(url_for("download_invoice"))
 
 @app.route('/department/add_department_distance', methods=['POST'])
 def add_department_distance():
     if (request.method == 'POST'):
         if not request.form['first_dep'] or not request.form['second_dep'] or not request.form['distance']:
-            flash('Please, enter all the required fields', 'Error')
+            flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
         else:
             try:
                 first_dep = request.form['first_dep']
