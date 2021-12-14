@@ -74,7 +74,10 @@ class Order(db.Model):
         self.price = price
         self.status = status
 
-SESSION_USER = User('','','','','')
+# SESSION_USER = User('','','','','')
+
+SESSION_USER = User('','','','','WORKER')
+
 
 def update_orders_status(from_dep, to_dep):
     orders_dict = []
@@ -133,6 +136,21 @@ def update_orders_status(from_dep, to_dep):
 def index():
 	return render_template('index.html', USER_ROLE = SESSION_USER.role)
 
+@app.route('/reg')
+def show_reg(page=1):
+    return render_template('reg.html')
+
+@app.route('/reg_del')
+def show_reg_del(page=1):
+    return render_template('reg_del.html')
+
+@app.route('/login')
+def show_login(page=1):
+    return render_template('login.html')
+
+@app.route('/create_ord')
+def show_create_ord(page=1):
+    return render_template('create_ord.html')
 
 @app.route('/user/registrate_user', methods=['POST'])
 def registrate_user():

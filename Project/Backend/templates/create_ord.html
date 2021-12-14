@@ -14,6 +14,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
 
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
+
     <title>Логістична CUMпанія</title>
   </head>
   <body>
@@ -27,8 +29,11 @@
           </div>
           <nav class = "col-8">
             <ul>
+              {% if USER_ROLE == "WORKER" %}
+                <li><a href = "{{ url_for('show_reg_del') }}">Зареєструвати воркера</a></li>
+              {% endif %}
               <li><a href = "#">Наші відділення</a></li>
-              <li><a href = "create_ord.html">Зробити замовлення</a></li>
+              <li><a href = "{{ url_for('show_create_ord') }}">Зробити замовлення</a></li>
               <li><a href = "#">Мої замовлення</a></li>
               <li><a href = "#">Особистий кабінет</a></li>
             </ul>
@@ -55,6 +60,9 @@
           <img src="img/meme3.jpg" class="rounded float-start">
         </div>
         <div class = "col">
+
+          <h1> Create Order </h1>
+
           <form class = "row" method = "post" action = "create_ord.html">
             <div class="mb-3 col-md-auto">
               <label for="exampleInputEmail1" class="form-label">Receiver Name</label>

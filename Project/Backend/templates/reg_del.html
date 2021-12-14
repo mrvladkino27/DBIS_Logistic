@@ -14,6 +14,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
 
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
+    
     <title>Логістична CUMпанія</title>
   </head>
   <body>
@@ -27,7 +29,13 @@
           </div>
           <nav class = "col-8">
             <ul>
-              My takie-to takie-to delaem to-to to-to
+              {% if USER_ROLE == "WORKER" %}
+                <li><a href = "{{ url_for('show_reg_del') }}">Зареєструвати воркера</a></li>
+              {% endif %}
+              <li><a href = "#">Наші відділення</a></li>
+              <li><a href = "{{ url_for('show_create_ord') }}">Зробити замовлення</a></li>
+              <li><a href = "#">Мої замовлення</a></li>
+              <li><a href = "#">Особистий кабінет</a></li>
             </ul>
           </nav>
         </div>
