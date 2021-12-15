@@ -6,7 +6,8 @@ import os
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
 app.config['UPLOAD_FOLDER'] = 'Download\\'
  
 
@@ -75,11 +76,14 @@ class Order(db.Model):
         self.status = status
 
 SESSION_USER = User('','','','','')
-
+TEST_DEPARTMENT_LIST = ['Livyi bereg', 'Brovary', 'Borschagivka', 'Another Borschagivka', 'Akademmistechko']
 # SESSION_USER = User('','','','','WORKER')
 size_text = {2: 'S', 4: 'M', 8:'L', 16:'XL'}
 status_text = {False: 'В обробці', True: 'Доставлено'}
 
+
+def set_session_user(user):
+    SESSION_USER = user
 
 def update_orders_status(from_dep, to_dep):
     orders_dict = []
@@ -137,25 +141,29 @@ def update_orders_status(from_dep, to_dep):
 @app.route('/')
 def index():
     if SESSION_USER.role != '':
-        return render_template('index.html', USER_ROLE = SESSION_USER.role)
+        return render_template('index.html', SESSION_USER = SESSION_USER)
     else:
-        return render_template('reg.html')
+        return redirect(url_for('show_login'))
 
-@app.route('/reg')
-def show_reg(page=1):
-    return render_template('reg.html')
+@app.route('/user/registrate_user')
+def show_reg():
+    return render_template('reg.html', TEST_DEPARTMENT_LIST = Department.query)
+
+@app.route('/main')
+def show_main_page():
+    return render_template('index.html', SESSION_USER = SESSION_USER)
 
 @app.route('/reg_del')
-def show_reg_del(page=1):
-    return render_template('reg_del.html')
+def show_reg_del():
+    return render_template('reg_del.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = SESSION_USER)
 
-@app.route('/login')
-def show_login(page=1):
+@app.route('/user/login')
+def show_login():
     return render_template('login.html')
 
 @app.route('/create_ord')
-def show_create_ord(page=1):
-    return render_template('create_ord.html')
+def show_create_ord():
+    return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = SESSION_USER)
 
 @app.route('/user/registrate_user', methods=['POST'])
 def registrate_user():
@@ -168,13 +176,13 @@ def registrate_user():
             else:
                 try:
                     email = request.form['email']
-                    password = sha256(request.form['password'].encode())
+                    password = sha256(request.form['password'].encode()).hexdigest()
                     if request.form['name']:
                         name = request.form['name']
                     else:
                         name = None
                     department = request.form['department']
-                    role = "User"
+                    role = "USER"
                     user = User(email, password, name, department, role)
                     db.session.add(user)
                 except:
@@ -183,7 +191,7 @@ def registrate_user():
             return redirect(url_for("index"))
         else:
             flash("Паролі не відповідають один одному", "Error")
-    return redirect(url_for("registrate_user"))
+    return redirect(url_for("show_reg"))
 
 @app.route('/user/registrate_worker', methods=['POST'])
 def registrate_worker():
@@ -195,13 +203,13 @@ def registrate_worker():
         else:
             try:
                 email = request.form['email']
-                password = sha256(request.form['password'].encode())
+                password = sha256(request.form['password'].encode()).hexdigest()
                 if request.form['name']:
                     name = request.form['name']
                 else:
                     name = None
                 department = request.form['department']
-                role = "Worker"
+                role = "WORKER"
                 worker = User(email, password, name, department, role)
                 db.session.add(worker)
             except:
@@ -221,7 +229,7 @@ def update_user():
                 user = User.query.filter_by(email=SESSION_USER.email).first()
                 db.session.delete(user)
                 email = request.form['email']
-                password = sha256(request.form['password'].encode())
+                password = sha256(request.form['password'].encode()).hexdigest()
                 if request.form['name'] != '':
                     name = request.form['name']
                 else:
@@ -237,28 +245,33 @@ def update_user():
         return redirect(url_for("index"))
     return redirect(url_for("registrate_user"))
 
-@app.route('/user/login', methods=['GET'])
+@app.route('/user/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'GET':
+
+    if request.method == 'GET' or request.method == 'POST':
+
         if not request.form['email'] or not request.form['password']:
+
             flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
         else:
             try:
                 email = request.form['email']
-                password = sha256(request.form['password'].encode())
-                user = User.query.filter_by(email = email)
+                password = sha256(request.form['password'].encode()).hexdigest()
+                user = User.query.filter_by(email = email).first()
                 if user:
                     if user.password == password:
-                        SESSION_USER = user
-                        return redirect(url_for("index"))
+                        set_session_user(user)
+                        return render_template('index.html', SESSION_USER = user)
                     else:
                         flash('Wrong password.', 'Error')
                 else:
                     flash('There is no user with such email.', 'Error')
             except:
                 flash('Something went wrong with authentification.', 'Error')
+                return redirect(url_for('show_login'))
+
         return redirect(url_for("index"))
-    return redirect(url_for("login"))	
+    return redirect(url_for("login"))
 
 @app.route('/user/create_order', methods=['POST'])
 def create_order():

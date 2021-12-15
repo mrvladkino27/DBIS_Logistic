@@ -63,45 +63,39 @@
         
       <h1> Deliverer Register </h1>
 
-      <form class = "row" method = "post" action = "login.html">
+      <form class = "row" method = "POST" action = "{{ request.path }}">
         <div class="mb-3 col-md-auto">
           <label for="exampleInputEmail1" class="form-label">Name</label>
-          <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+          <input type="text" class="form-control" name="name" aria-describedby="emailHelp">
         </div>
         <div class = "w-100"></div>
         <div class="mb-3 col-md-auto">
           <label for="exampleInputEmail1" class="form-label">Email address</label>
-          <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+          <input type="email" class="form-control" name="email" aria-describedby="emailHelp">
         </div>
         <div class = "w-100"></div>
         <div class="mb-3 col-md-auto">
           <label for="exampleInputPassword1" class="form-label">Password</label>
-          <input type="password" class="form-control" id="exampleInputPassword1">
+          <input type="password" class="form-control" name="password">
         </div>
         <div class = "w-100"></div>
         <div class="mb-3 col-md-auto">
           <label for="exampleInputPassword1" class="form-label">Confirm Password</label>
-          <input type="password" class="form-control" id="exampleInputPassword1">
+          <input type="password" class="form-control" name="confirm_password">
         </div>
         <div class = "w-100"></div>
         <div class="mb-3 col-md-auto">
           <label for="exampleInputPassword1" class="form-label">Department</label>
-          <select class="form-select" aria-label="Default select example">
+          <select class="form-select" name="department" aria-label="Default select example">
             <option selected>Choose your department</option>
-            <option value="1">Livyi bereg</option>
-            <option value="2">Brovary</option>
-            <option value="3">Borschagivka</option>
-            <option value="3">Another Borschagivka</option>
-            <option value="3">Akademmistechko (lol)</option>
+            {% for department in TEST_DEPARTMENT_LIST %}
+            <option value={{ department }}> {{ department.adress }} </option>
+            {% endfor %}
           </select>
         </div>
         <div class = "w-100"></div>
         <div class="mb-3 col-md-auto form-check">
           <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-        <div class = "w-100"></div>
-        <div class="mb-3 col-md-auto form-check">
-          <a href = "login.html"> Login </a>
         </div>
         <div class = "w-100"></div>
       </form>
@@ -117,6 +111,14 @@
         {{ message }}
       </div>
     {%- endfor %}
+        
+
+    {%- for category, message in get_flashed_messages(with_categories = true) %}
+      <div class = "alert alert-danger" style="color:red; font-size:25px;">
+        {{ message }}
+      </div>
+    {%- endfor %}
+
         
   </body>
 </html>
