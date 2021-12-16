@@ -325,35 +325,40 @@ def create_order():
                 return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
     return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
 
-@app.route('/user/cabinet')
+@app.route('/user/cabinet', methods=['GET', 'POST'])
 def download_invoice():
     if request.method == 'GET' or request.method == 'POST':
-        id = int(request.form['id'])
+        id = int(request.form['order_id'])
         if not id:
             flash('Будь ласка, оберіть замовлення для якого згенеруються накладна.', 'Error')
+            return redirect(url_for('show_cabinet'))
         else:
-            order = Order.query.filter_by(id = id).first()
-            distance = Distance.query.filter_by(first_dep = order.send_dep, second_dep = order.recieve_dep).first()
-            if not distance.distance:
-                flash("У базі немає відомомстей про відстані між обраними відділеннями.", "Error")
-            file_name = f"Invoice_{id}.txt"
+            try:
+                order = Order.query.filter_by(id = id).first()
+                distance = Distance.query.filter_by(first_dep = order.send_dep, second_dep = order.recieve_dep).first()
+                if not distance.distance:
+                    flash("У базі немає відомомстей про відстані між обраними відділеннями.", "Error")
+                    return redirect(url_for('show_cabinet'))
+                file_name = f"Invoice_{id}.txt"
 
-            for file in os.listdir(os.path.join(app.root_path.replace('\\','/'), app.config['UPLOAD_FOLDER'])):
-                os.remove(os.path.join(app.root_path.replace('\\','/'), app.config['UPLOAD_FOLDER'], file))
+                for file in os.listdir(os.path.join(app.root_path, app.config['UPLOAD_FOLDER']).replace('\\','/')):
+                    os.remove(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], file).replace('\\','/'))
 
-            with open(os.path.join(app.root_path, app.config['UPLOAD_FOLDER']).replace('\\','/') + file_name, encoding='utf-8', mode='w') as download_file:
-                download_file.write(f"\n{'='*60}\n{' '*20}Логістична компанія{' '*10}\n")
-                download_file.write(f"{'='*16} Накладна відправлення №{id} {'='*16}\n\n")
-                download_file.write(f"Від: '{order.sender}'\t     ->  \tКому: '{order.reciever}'\n")
-                download_file.write(f"Пункт відправлення: {order.send_dep}    ->  \tПункт одержання:{order.recieve_dep}\n\n")
-                download_file.write(f"Відстань між пунктами відправлення: {distance.distance}\n")
-                download_file.write(f"Розмір відправлення: {size_text[order.size]}\n")
-                download_file.write(f"Статус відправлення: {status_text[order.status]}\n")
-                download_file.write(f"{'_'*60}\nВартість послуги: {order.price}\n")
+                with open(app.config['UPLOAD_FOLDER'].replace('\\','/') + file_name, encoding='utf-8', mode='w') as download_file:
+                    download_file.write(f"\n{'='*60}\n{' '*20}Логістична компанія{' '*10}\n")
+                    download_file.write(f"{'='*16} Накладна відправлення №{id} {'='*16}\n\n")
+                    download_file.write(f"Від: '{order.sender}'\t     ->  \tКому: '{order.reciever}'\n")
+                    download_file.write(f"Пункт відправлення: {order.send_dep}    ->  \tПункт одержання:{order.recieve_dep}\n\n")
+                    download_file.write(f"Відстань між пунктами відправлення: {distance.distance}\n")
+                    download_file.write(f"Розмір відправлення: {size_text[order.size]}\n")
+                    download_file.write(f"Статус відправлення: {status_text[order.status]}\n")
+                    download_file.write(f"{'_'*60}\nВартість послуги: {order.price}\n")
 
-            return send_from_directory(directory = app.config['UPLOAD_FOLDER'], path = app.root_path.replace('\\','/'), filename = file_name, as_attachment = True)
-        return redirect(url_for("index"))
-    return redirect(url_for("download_invoice"))
+                return send_from_directory(directory = app.config['UPLOAD_FOLDER'], path = app.root_path.replace('\\','/'), filename = file_name, as_attachment = True)
+            except Exception as err:
+                flash(str(err), 'Error')
+                return redirect(url_for('show_cabinet'))
+    return redirect(url_for("show_cabinet"))
 
 @app.route('/department/add_department_distance', methods=['POST'])
 def add_department_distance():
