@@ -74,7 +74,7 @@
           <form class = "row" method = "POST" action = "{{ request.path }}">
             <div class="mb-3 col-md-auto">
               <label for="exampleInputEmail1" class="form-label">Receiver email</label>
-              <input type="text" class="form-control" name="reciever" aria-describedby="emailHelp">
+              <input type="email" class="form-control" name="reciever" aria-describedby="emailHelp">
             </div>
             <div class = "w-100"></div>
             <div class="mb-3 col-md-auto">
@@ -82,7 +82,7 @@
               <select class="form-select" name="recieve_dep" aria-label="Default select example">
                 <option selected>Choose target department</option>
                 {% for department in TEST_DEPARTMENT_LIST %}
-                <option value={{ department }}> {{ department.adress }} </option>
+                <option value={{ department.adress }}> {{ department.adress }} </option>
                 {% endfor %}
               </select>
             </div>
@@ -109,13 +109,6 @@
         </div>
       </div>
     </div>
-
-    {%- for category, message in get_flashed_messages(with_categories = true) %}
-      <div class = "alert alert-danger" style="color:red; font-size:25px;">
-        {{ message }}
-      </div>
-    {%- endfor %}
-        
 
     {%- for category, message in get_flashed_messages(with_categories = true) %}
       <div class = "alert alert-danger" style="color:red; font-size:25px;">

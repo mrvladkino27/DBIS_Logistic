@@ -73,14 +73,62 @@
         </div>
       </div>
       <div class="row">
+        <table border="">
+      <thead>
+        <tr>
+          <th>Отримувач</th>
+          <th>Відділення</th>
+          <th>Ціна</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+
+      <tbody>
         {% for order in SEND_ORDER_LIST %}
-            <option value={{ order }}> {{ order }} </option>
+          <tr>
+            <td>{{ order.reciever }}</td>
+            <td>{{ order.recieve_dep }}</td>
+            <td>{{ order.price}}</td>
+            <td>{{ order.status }}</td>
+            <th>
+              <form action="{{ request.path }}" method="GET">
+                <input type="hidden" name="id" value="{{ order.id }}" />
+                <input type="submit" name="delete" value="Скачати" />
+              </form>
+            </th>
+          </tr>
         {% endfor %}
+      </tbody>
+      </table>
       </div>
       <div class="row">
+        <table border="">
+      <thead>
+        <tr>
+          <th>Відправник</th>
+          <th>Відділення</th>
+          <th>Ціна</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+
+      <tbody>
         {% for order in RECIEVE_ORDER_LIST %}
-            <option value={{ order }}> {{ order }} </option>
+          <tr>
+            <td>{{ order.sender }}</td>
+            <td>{{ order.send_dep }}</td>
+            <td>{{ order.price}}</td>
+            <td>{{ order.status }}</td>
+            <th>
+              <form action="{{ request.path }}" method="GET">
+                <input type="hidden" name="id" value="{{ order.id }}" />
+                <input type="submit" name="delete" value="Скачати" />
+              </form>
+            </th>
+          </tr>
         {% endfor %}
+      </tbody>
+      </table>
       </div>
     </div>
 

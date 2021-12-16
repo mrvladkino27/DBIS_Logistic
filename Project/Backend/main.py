@@ -294,7 +294,11 @@ def create_order():
             return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
         else:
             try:
-                id = Order.query.order_by(Order.id.desc()).first().id + 1
+                last = Order.query.order_by(Order.id.desc()).first()
+                if last:
+                    id = last.id + 1
+                else:
+                    id = 1
                 sender = session_user.email
                 reciever = request.form['reciever']
                 db_reciever = User.query.filter_by(email=reciever).first()
@@ -321,10 +325,10 @@ def create_order():
                 return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
     return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
 
-@app.route('/download_invoice')
+@app.route('/user/cabinet')
 def download_invoice():
-    if request.method == 'GET':
-        id = request.form['id']
+    if request.method == 'GET' or request.method == 'POST':
+        id = int(request.form['id'])
         if not id:
             flash('Будь ласка, оберіть замовлення для якого згенеруються накладна.', 'Error')
         else:
@@ -334,8 +338,8 @@ def download_invoice():
                 flash("У базі немає відомомстей про відстані між обраними відділеннями.", "Error")
             file_name = f"Invoice_{id}.txt"
 
-            for file in os.listdir(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])):
-                os.remove(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], file))
+            for file in os.listdir(os.path.join(app.root_path.replace('\\','/'), app.config['UPLOAD_FOLDER'])):
+                os.remove(os.path.join(app.root_path.replace('\\','/'), app.config['UPLOAD_FOLDER'], file))
 
             with open(os.path.join(app.root_path, app.config['UPLOAD_FOLDER']).replace('\\','/') + file_name, encoding='utf-8', mode='w') as download_file:
                 download_file.write(f"\n{'='*60}\n{' '*20}Логістична компанія{' '*10}\n")
