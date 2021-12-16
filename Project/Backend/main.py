@@ -6,8 +6,8 @@ import os
 
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
 app.config['UPLOAD_FOLDER'] = 'Download\\'
  
 
@@ -344,7 +344,7 @@ def download_invoice():
                 for file in os.listdir(os.path.join(app.root_path, app.config['UPLOAD_FOLDER']).replace('\\','/')):
                     os.remove(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], file).replace('\\','/'))
 
-                with open(app.config['UPLOAD_FOLDER'].replace('\\','/') + file_name, encoding='utf-8', mode='w') as download_file:
+                with open(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], file_name).replace('\\','/'), encoding='utf-8', mode='w') as download_file:
                     download_file.write(f"\n{'='*60}\n{' '*20}Логістична компанія{' '*10}\n")
                     download_file.write(f"{'='*16} Накладна відправлення №{id} {'='*16}\n\n")
                     download_file.write(f"Від: '{order.sender}'\t     ->  \tКому: '{order.reciever}'\n")
