@@ -236,32 +236,43 @@ def registrate_worker():
     return redirect(url_for("registrate_user"))
 
 
-@app.route('/user/edit_user', methods=['POST'])
+@app.route('/user/update', methods=['POST', 'GET'])
 def update_user():
+
     if request.method == 'POST':
-        if not request.form['email'] or not request.form['password'] or not request.form['department']:
+        if not request.form['old_password']:
             flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
-        elif session_user.role != '':
+        if sha256(request.form['old_password'].encode()).hexdigest() == session_user.password:
             try:
-                user = User.query.filter_by(email=session_user.email).first()
-                db.session.delete(user)
-                email = request.form['email']
-                password = sha256(request.form['password'].encode()).hexdigest()
-                if request.form['name'] != '':
+                db.session.delete(session_user)
+                if request.form['email']:
+                    email = request.form['email']
+                else:
+                    email = session_user.email
+                if request.form['password']:
+                    if request.form['password'] == request.form['confirm_password']:
+                        password = sha256(request.form['password'].encode()).hexdigest()
+                    else:
+                        flash('Паролі не збігаються')
+                        return redirect(url_for('show_update'))
+                else:
+                    password = session_user.password
+                if request.form['name']:
                     name = request.form['name']
                 else:
                     name = None
                 department = request.form['department']
                 user = User(email, password, name, department, session_user.role)
+
                 db.session.add(user)
             except Exception as err:
                 flash(str(err), 'Error')
-                return render_template('login.html') #######!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                return redirect(url_for('show_cabinet')) #######!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         else:
             flash('You need to log in to edit user info', 'Error')
         db.session.commit()
-        return redirect(url_for("index"))
-    return redirect(url_for("registrate_user"))
+        return redirect(url_for("show_login"))
+    return redirect(url_for("show_main_page"))
 
 @app.route('/user/login', methods=['GET', 'POST'])
 def login():
