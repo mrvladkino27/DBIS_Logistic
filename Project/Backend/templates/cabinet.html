@@ -91,9 +91,9 @@
             <td>{{ order.price}}</td>
             <td>{{ order.status }}</td>
             <th>
-              <form action="{{ request.path }}" method="GET">
-                <input type="hidden" name="id" value="{{ order.id }}" />
-                <input type="submit" name="delete" value="Скачати" />
+              <form action="{{ request.path }}" method="POST">
+                <input type="hidden" name="order_id" value="{{ order.id }}" />
+                <input type="submit" name="Download" value="Скачати" />
               </form>
             </th>
           </tr>
@@ -120,9 +120,9 @@
             <td>{{ order.price}}</td>
             <td>{{ order.status }}</td>
             <th>
-              <form action="{{ request.path }}" method="GET">
-                <input type="hidden" name="id" value="{{ order.id }}" />
-                <input type="submit" name="delete" value="Скачати" />
+              <form action="{{ request.path }}" method="POST">
+                <input type="hidden" name="order_id" value="{{ order.id }}" />
+                <input type="submit" name="Download" value="Скачати" />
               </form>
             </th>
           </tr>
