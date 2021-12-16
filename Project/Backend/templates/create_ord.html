@@ -16,7 +16,7 @@
 
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
 
-    <title>Логістична CUMпанія</title>
+    <title>Логістична КУМпанія</title>
   </head>
   <body>
     <header class = "container-fluid">
@@ -29,13 +29,12 @@
           </div>
           <nav class = "col-8">
             <ul>
-              {% if SESSION_USER.role == "WORKER" %}
+              {% if USER_ROLE == "WORKER" %}
                 <li><a href = "{{ url_for('show_reg_del') }}">Зареєструвати воркера</a></li>
               {% endif %}
-              <li><a href = "#">Наші відділення</a></li>
               <li><a href = "{{ url_for('show_create_ord') }}">Зробити замовлення</a></li>
-              <li><a href = "#">Мої замовлення</a></li>
-              <li><a href = "#">Особистий кабінет</a></li>
+              <li><a href = "{{ url_for('show_cabinet') }}">Особистий кабінет</a></li>
+              <li><a href = "{{ url_for('show_exit') }}">Вийти</a></li>
             </ul>
           </nav>
         </div>
@@ -83,11 +82,10 @@
               <label for="exampleInputPassword1" class="form-label">Package Size</label>
               <select class="form-select" name="size" aria-label="Default select example">
                 <option selected>Choose Package Size</option>
-                <option value="1">S</option>
-                <option value="2">M</option>
-                <option value="3">L</option>
-                <option value="3">XL</option>
-                <option value="3">XXL</option>
+                <option value="2">S</option>
+                <option value="4">M</option>
+                <option value="8">L</option>
+                <option value="16">XL</option>
               </select>
             </div>
             <div class = "w-100"></div>
