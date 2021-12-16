@@ -158,6 +158,10 @@ def show_exit():
 def show_reg():
     return render_template('reg.html', TEST_DEPARTMENT_LIST = Department.query)
 
+@app.route('/user/change_department')
+def show_change_department():
+    return render_template('change_department.html', SESSION_USER = session_user, DEPARTMENT_LIST = Department.query)
+
 @app.route('/main')
 def show_main_page():
     return render_template('index.html', SESSION_USER = session_user)

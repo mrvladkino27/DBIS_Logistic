@@ -24,19 +24,27 @@
         <div class = "row">
           <div class = "col-4">
             <h1>
-            <a href = "main_page.html"> Логістична CUMпанія </a>
+            <a href = "{{ url_for('show_main_page') }}"> Логістична CUMпанія </a>
             </h1>
           </div>
           <nav class = "col-8">
+            {% if SESSION_USER.role != "" %}
             <ul>
-              {% if USER_ROLE == "WORKER" %}
+              {% if SESSION_USER.role == "WORKER" %}
                 <li><a href = "{{ url_for('show_reg_del') }}">Зареєструвати воркера</a></li>
+                <li><a href = "{{ url_for('show_change_department') }}">Змінити департаменти</a></li>
+                
               {% endif %}
-              <li><a href = "#">Наші відділення</a></li>
               <li><a href = "{{ url_for('show_create_ord') }}">Зробити замовлення</a></li>
-              <li><a href = "#">Мої замовлення</a></li>
-              <li><a href = "#">Особистий кабінет</a></li>
+              <li><a href = "{{ url_for('show_cabinet') }}">Особистий кабінет</a></li>
+              <li><a href = "{{ url_for('show_exit') }}">Вийти</a></li>
             </ul>
+            {% else %}
+            <ul>
+              <li><a href = "{{ url_for('show_login') }}">Увійти</a></li>
+              <li><a href = "{{ url_for('show_reg') }}">Зареєструватися</a></li>
+            </ul>
+            {% endif %}
           </nav>
         </div>
       </div>
@@ -106,12 +114,6 @@
       </div>
     </div>
 
-    {%- for category, message in get_flashed_messages(with_categories = true) %}
-      <div class = "alert alert-danger" style="color:red; font-size:25px;">
-        {{ message }}
-      </div>
-    {%- endfor %}
-        
 
     {%- for category, message in get_flashed_messages(with_categories = true) %}
       <div class = "alert alert-danger" style="color:red; font-size:25px;">
