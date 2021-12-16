@@ -15,16 +15,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
 
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
-    
+
     <title>Логістична КУМпанія</title>
-  </head>
-  <body>
-    <header class = "container-fluid">
+  <header class = "container-fluid">
       <div class = "container">
         <div class = "row">
           <div class = "col-4">
             <h1>
-            <a href = "{{ url_for('show_main_page') }}"> Логістична КУМпанія  </a>
+            <a href = "{{ url_for('show_main_page') }}"> Логістична КУМпанія </a>
             </h1>
           </div>
           <nav class = "col-8">
@@ -64,33 +62,61 @@
 
     <div class = "container">
       <div class = "row">
-
       <div class = "col">
-      <h1> Add New Department </h1>
+        <img src="img/meme2.jpg" class="rounded float-start">
+      </div>
+      <div class = "col">
+
+      <h1> User Register </h1>
 
       <form class = "row" method = "POST" action = "{{ request.path }}">
         <div class="mb-3 col-md-auto">
-          <label for="exampleInputEmail1" class="form-label">Department Adress</label>
-          <input type="text" class="form-control" name="adress" aria-describedby="emailHelp">
-          {% for department in DEPARTMENT_LIST %}
-
-            <label for="exampleInputEmail1" class="form-label">Range to {{ department.adress }}</label>
-            <input type="number" class="form-control" name="{{ department }}}" aria-describedby="emailHelp">
-
-          {% endfor %}
+          <label for="exampleInputEmail1" class="form-label">Name</label>
+          <input type="text" class="form-control" name="name" aria-describedby="emailHelp" placeholder="{{ SESSION_USER.name }}">
         </div>
+        <div class = "w-100"></div>
+        <div class="mb-3 col-md-auto">
+          <label for="exampleInputEmail1" class="form-label">Email address</label>
+          <input type="email" class="form-control" name="email" aria-describedby="emailHelp" placeholder="{{ SESSION_USER.email }}">
+        </div>
+        <div class = "w-100"></div>
+        <div class="mb-3 col-md-auto">
+          <label for="exampleInputPassword1" class="form-label">Old Password</label>
+          <input type="password" class="form-control" name="old_password">
+        </div>
+        <div class = "w-100"></div>
+        <div class="mb-3 col-md-auto">
+          <label for="exampleInputPassword1" class="form-label">Password</label>
+          <input type="password" class="form-control" name="password">
+        </div>
+        <div class = "w-100"></div>
+        <div class="mb-3 col-md-auto">
+          <label for="exampleInputPassword1" class="form-label">Confirm Password</label>
+          <input type="password" class="form-control" name="confirm_password">
+        </div>
+        <div class = "w-100"></div>
+        <div class="mb-3 col-md-auto">
+          <label for="exampleInputPassword1" class="form-label">Department</label>
+          <select class="form-select" aria-label="Default select example" name="department">
+            <option selected>{{ SESSION_USER.department }}</option>
+            {% for department in DEPARTMENT_LIST %}
+              <option value="{{ department.adress }}"> {{ department.adress }} </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class = "w-100"></div>
+        <div class="mb-3 col-md-auto form-check">
+          <!-- <button type="submit" class="btn btn-primary">Submit</button> -->
           <input type="submit" name="Submit" />
-      </div>
+        </div>
         <div class = "w-100"></div>
       </form>
-
-
+      </div>
       <div class = "col">
         <img src="img/meme2.jpg" class="rounded float-end">
       </div>
-
+      </div>
     </div>
-
 
     {%- for category, message in get_flashed_messages(with_categories = true) %}
       <div class = "alert alert-danger" style="color:red; font-size:25px;">
@@ -98,6 +124,5 @@
       </div>
     {%- endfor %}
 
-        
   </body>
 </html>

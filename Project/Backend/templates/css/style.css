@@ -8,6 +8,11 @@ h1 {
 	position: center;
 }
 
+h2 {
+	float: center;
+	position: center;
+}
+
 .boban {
 	float: center;
 	position: center;
@@ -22,7 +27,6 @@ table {
 }
 
 html,
-h2,
 h3,
 h4,
 h5,

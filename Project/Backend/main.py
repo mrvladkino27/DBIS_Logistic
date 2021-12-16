@@ -6,8 +6,8 @@ import os
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
 app.config['UPLOAD_FOLDER'] = 'Download\\'
  
 
@@ -156,6 +156,10 @@ def show_change_department():
 @app.route('/main')
 def show_main_page():
     return render_template('index.html', SESSION_USER = session_user)
+
+@app.route('/user/update')
+def show_update():
+    return render_template('update.html', SESSION_USER = session_user, DEPARTMENT_LIST = Department.query)
 
 @app.route('/user/registrate_worker')
 def show_reg_del():

@@ -24,7 +24,7 @@
         <div class = "row">
           <div class = "col-4">
             <h1>
-            <a href = "{{ url_for('show_main_page') }}"> Логістична CUMпанія </a>
+            <a href = "{{ url_for('show_main_page') }}"> Логістична КУМпанія </a>
             </h1>
           </div>
           <nav class = "col-8">
@@ -68,14 +68,42 @@
         </div>
         <div class = "col">
           <h1> Вітаємо, {{ SESSION_USER.name }}! </h1>
+          <div class="container">
+
+            <div class="row">
+              <div class="col">
+                <div class="row">
+                  Ім'я користувача: 
+                </div>
+                <div class="row">
+                  Відділеня:
+                </div>
+              </div>
+              <div class="col">
+                <div class="row">
+                  {{ SESSION_USER.name }}
+                </div>
+                <div class="row">
+                  {{ SESSION_USER.department }}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+
+              <a href = "{{ url_for('show_update') }}"> Змінити Дані</a>
+            </div>
+
+          </div>
         </div>
         <div class = "col">
         </div>
       </div>
       <div class="row">
+        <h2> Відправлення </h2>
         <table border="">
       <thead>
         <tr>
+          <th>ID</th>
           <th>Отримувач</th>
           <th>Відділення</th>
           <th>Ціна</th>
@@ -86,6 +114,7 @@
       <tbody>
         {% for order in SEND_ORDER_LIST %}
           <tr>
+            <td>{{ order.id }}</td>
             <td>{{ order.reciever }}</td>
             <td>{{ order.recieve_dep }}</td>
             <td>{{ order.price}}</td>
@@ -101,10 +130,13 @@
       </tbody>
       </table>
       </div>
+
       <div class="row">
+        <h2> Отримання </h2>
         <table border="">
       <thead>
         <tr>
+          <th>ID</th>
           <th>Відправник</th>
           <th>Відділення</th>
           <th>Ціна</th>
@@ -115,6 +147,7 @@
       <tbody>
         {% for order in RECIEVE_ORDER_LIST %}
           <tr>
+            <td>{{ order.id }}</td>
             <td>{{ order.sender }}</td>
             <td>{{ order.send_dep }}</td>
             <td>{{ order.price}}</td>
