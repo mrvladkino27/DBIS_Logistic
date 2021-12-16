@@ -76,18 +76,8 @@ class Order(db.Model):
         self.status = status
 
 session_user = User('','','','','')
-TEST_DEPARTMENT_LIST = ['Livyi bereg', 'Brovary', 'Borschagivka', 'Another Borschagivka', 'Akademmistechko']
-# session_user = User('','','','','WORKER')
 size_text = {2: 'S', 4: 'M', 8:'L', 16:'XL'}
 status_text = {False: 'В обробці', True: 'Доставлено'}
-
-
-def set_session_user(user):
-    session_user.email = user.email
-    session_user.password = user.password
-    session_user.name = user.name
-    session_user.department = user.department
-    session_user.role = user.role
 
 def update_orders_status(from_dep, to_dep):
     orders_dict = []
@@ -151,7 +141,8 @@ def index():
 
 @app.route('/user/exit')
 def show_exit():
-    set_session_user(User('','','','',''))
+    global session_user
+    session_user = User('','','','','')
     return redirect(url_for('show_login'))
 
 @app.route('/user/registrate_user')
@@ -166,7 +157,7 @@ def show_change_department():
 def show_main_page():
     return render_template('index.html', SESSION_USER = session_user)
 
-@app.route('/reg_del')
+@app.route('/user/registrate_worker')
 def show_reg_del():
     return render_template('reg_del.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
 
@@ -176,11 +167,15 @@ def show_login():
 
 @app.route('/user/cabinet')
 def show_cabinet():
-    return render_template('cabinet.html', SESSION_USER = session_user, SEND_ORDER_LIST = Order.query.filter_by(sender = session_user.email), RECIEVE_ORDER_LIST = Order.query.filter_by(reciever = session_user.email))
+    return render_template('cabinet.html', SESSION_USER = session_user, SEND_ORDER_LIST = Order.query.filter_by(sender = session_user.email).order_by(Order.id), RECIEVE_ORDER_LIST = Order.query.filter_by(reciever = session_user.email).order_by(Order.id))
 
-@app.route('/user/create_ord')
+@app.route('/user/create_order')
 def show_create_ord():
     return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
+
+@app.route('/departments')
+def show_departments():
+    return render_template('NADO DODELATY!', DEPARTMENT_LIST = Department.query)
 
 @app.route('/user/registrate_user', methods=['POST'])
 def registrate_user():
@@ -229,8 +224,9 @@ def registrate_worker():
                 role = "WORKER"
                 worker = User(email, password, name, department, role)
                 db.session.add(worker)
-            except:
-                flash('Something went wrong with registration.', 'Error')
+            except Exception as err:
+                flash(str(err), 'Error')
+                return redirect(url_for("registrate_user"))
         db.session.commit()
         return redirect(url_for("index"))
     return redirect(url_for("registrate_user"))
@@ -254,8 +250,9 @@ def update_user():
                 department = request.form['department']
                 user = User(email, password, name, department, session_user.role)
                 db.session.add(user)
-            except:
-                flash('Something went wrong with editing user information.', 'Error')
+            except Exception as err:
+                flash(str(err), 'Error')
+                return render_template('login.html') #######!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         else:
             flash('You need to log in to edit user info', 'Error')
         db.session.commit()
@@ -264,12 +261,10 @@ def update_user():
 
 @app.route('/user/login', methods=['GET', 'POST'])
 def login():
-
     if request.method == 'GET' or request.method == 'POST':
-
         if not request.form['email'] or not request.form['password']:
-
             flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
+            return render_template('login.html')
         else:
             try:
                 email = request.form['email']
@@ -277,49 +272,54 @@ def login():
                 user = User.query.filter_by(email = email).first()
                 if user:
                     if user.password == password:
-                        set_session_user(user)
+                        global session_user
+                        session_user = user
                         return redirect(url_for('index'))
                     else:
                         flash('Wrong password.', 'Error')
+                        return render_template('login.html')
                 else:
                     flash('There is no user with such email.', 'Error')
-            except:
-                flash('Something went wrong with authentification.', 'Error')
-                return redirect(url_for('show_login'))
+                    return render_template('login.html')
+            except Exception as err:
+                flash(str(err), 'Error')
+                return render_template('login.html')
+    return render_template('login.html')
 
-        return redirect(url_for("index"))
-    return redirect(url_for("login"))
-
-@app.route('/user/create_ord', methods=['GET', 'POST'])
+@app.route('/user/create_order', methods=['GET', 'POST'])
 def create_order():
-    if request.method == 'POST':
+    if request.method == 'GET' or request.method == 'POST':
         if not request.form['reciever'] or not request.form['recieve_dep'] or not request.form['size']:
             flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
+            return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
         else:
-            if User.query.filter_by(email = request.form['reciever']).first(): 
-                try:
-                    id = Order.query.order_by(Order.id.desc()).first().id + 1
-                    sender = session_user.email
-                    send_dep = session_user.department
-                    reciever = request.form['reciever']
-                    recieve_dep = request.form['recieve_dep']
-                    size = request.form['size']
-                    distance = Distance.query.filter_by(first_dep = send_dep, second_dep=recieve_dep).first()
-                    if distance.distance:
-                        price  = 30 + ( 0.35 * distance.distance * math.log2(size) )
-                    else:
-                        flash("There is no distance setuped for choosen departments", "Error")
-                    order = Order(id, sender, reciever, send_dep, recieve_dep, size, price, False)
-                    db.session.add(order)
-                    db.session.commit()
-                    update_orders_status(send_dep, recieve_dep)
-                except:
-                    flash('Something went wrong with order creation.', 'Error')
-            else:
-                flash('No such user in database', 'Error')
-        db.session.commit()
-        return redirect(url_for("index"))
-    return redirect(url_for("show_create_ord"))
+            try:
+                id = Order.query.order_by(Order.id.desc()).first().id + 1
+                sender = session_user.email
+                reciever = request.form['reciever']
+                db_reciever = User.query.filter_by(email=reciever).first()
+                if db_reciever.email == '':
+                    flash('Вказаного отримувача не вдалося знайти.', "Error")
+                    return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query,SESSION_USER = session_user)
+                send_dep = session_user.department
+                recieve_dep = request.form['recieve_dep']
+                size = int(request.form['size'])
+                distance = Distance.query.filter_by(first_dep = send_dep, second_dep=recieve_dep).first()
+                if distance.distance:
+                    price  = 30 + ( 0.35 * distance.distance * math.log2(size) )
+                else:
+                    flash("Відстані між обраними відділеннями не знайдено.", "Error")
+                    return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
+                order = Order(id, sender, reciever, send_dep, recieve_dep, size, price, False)
+                db.session.add(order)
+                db.session.commit()
+                update_orders_status(send_dep, recieve_dep)
+                flash("Відправлення надійшло в обробку.\nДетальну інформацію по замовленню можна побачити в \"Моїх замовленнях\"")
+                return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
+            except Exception as err:
+                flash(str(err), 'Error')
+                return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
+    return render_template('create_ord.html', TEST_DEPARTMENT_LIST = Department.query, SESSION_USER = session_user)
 
 @app.route('/download_invoice')
 def download_invoice():
