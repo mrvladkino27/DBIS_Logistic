@@ -360,7 +360,7 @@ def download_invoice():
             return redirect(url_for('show_cabinet'))
         else:
             try:
-                
+
                 log.info(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], f"Invoice_{id}.txt").replace('\\','/'))
                 log.info(app.config['UPLOAD_FOLDER'])
                 log.info(app.root_path.replace('\\','/'))
@@ -385,7 +385,7 @@ def download_invoice():
                     download_file.write(f"Статус відправлення: {status_text[order.status]}\n")
                     download_file.write(f"{'_'*60}\nВартість послуги: {order.price}\n")
 
-                return send_from_directory(directory = app.config['UPLOAD_FOLDER'], path = app.root_path.replace('\\','/'), filename = file_name, as_attachment = True)
+                return send_from_directory(directory = app.config['UPLOAD_FOLDER'], path = file_name, as_attachment = True)
             except Exception as err:
                 flash(str(err), 'Error')
                 return redirect(url_for('show_cabinet'))
