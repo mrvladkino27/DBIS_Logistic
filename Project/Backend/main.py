@@ -300,6 +300,14 @@ def login():
                 return render_template('login.html')
     return render_template('login.html')
 
+
+def get_distance(send_dep, recieve_dep):
+    distance = Distance.query.filter_by(first_dep = send_dep, second_dep = recieve_dep).first()
+    if not distance:
+        distance = Distance.query.filter_by(first_dep = recieve_dep, second_dep=send_dep).first()
+    return distance
+
+
 @app.route('/user/create_order', methods=['GET', 'POST'])
 def create_order():
     if request.method == 'GET' or request.method == 'POST':
@@ -322,9 +330,7 @@ def create_order():
                 send_dep = session_user.department
                 recieve_dep = request.form['recieve_dep']
                 size = int(request.form['size'])
-                distance = Distance.query.filter_by(first_dep = send_dep, second_dep=recieve_dep).first()
-                if not distance:
-                    distance = Distance.query.filter_by(first_dep = recieve_dep, second_dep=send_dep).first()
+                distane = get_distance(send_dep, recieve_dep)
                 if distance.distance:
                     price  = 30 + ( 0.35 * distance.distance * math.log2(size) )
                 else:
@@ -351,7 +357,7 @@ def download_invoice():
         else:
             try:
                 order = Order.query.filter_by(id = id).first()
-                distance = Distance.query.filter_by(first_dep = order.send_dep, second_dep = order.recieve_dep).first()
+                distane = get_distance(order.send_dep, order.recieve_dep)
                 if not distance.distance:
                     flash("У базі немає відомомстей про відстані між обраними відділеннями.", "Error")
                     return redirect(url_for('show_cabinet'))
