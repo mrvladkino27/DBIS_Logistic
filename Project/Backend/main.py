@@ -6,17 +6,17 @@ import os
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/Logistic'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/Logistic'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
 app.config['UPLOAD_FOLDER'] = 'Download\\'
  
 
-# uri = os.environ['DATABASE_URL']
-# if uri.startswith("postgres://"):
-#     uri = uri.replace("postgres://", "postgresql://", 1)
+uri = os.environ['DATABASE_URL']
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = uri
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
 
 app.config['SECRET_KEY'] = "string"
 app.config['SQLALCHEMY_ECHO'] = True
