@@ -257,11 +257,7 @@ def update_user():
             flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
         if sha256(request.form['old_password'].encode()).hexdigest() == session_user.password:
             try:
-                db.session.delete(session_user)
-                if request.form['email']:
-                    email = request.form['email']
-                else:
-                    email = session_user.email
+                email = session_user.email
                 if request.form['password']:
                     if request.form['password'] == request.form['confirm_password']:
                         password = sha256(request.form['password'].encode()).hexdigest()
@@ -274,10 +270,10 @@ def update_user():
                     name = request.form['name']
                 else:
                     name = None
-                department = request.form['department']
-                user = User(email, password, name, department, session_user.role)
-
-                db.session.add(user)
+                # user = User(email, password, name, department, session_user.role)
+                User.query.filter_by(id = session_user.email).update({'password': password, 'name': name})
+                # db.session.delete(session_user)
+                # db.session.add(user)
             except Exception as err:
                 flash(str(err), 'Error')
                 return redirect(url_for('show_cabinet'))

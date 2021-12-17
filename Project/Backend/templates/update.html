@@ -78,11 +78,6 @@
         </div>
         <div class = "w-100"></div>
         <div class="mb-3 col-md-auto">
-          <label for="exampleInputEmail1" class="form-label">Email address</label>
-          <input type="email" class="form-control" name="email" aria-describedby="emailHelp" placeholder="{{ SESSION_USER.email }}">
-        </div>
-        <div class = "w-100"></div>
-        <div class="mb-3 col-md-auto">
           <label for="exampleInputPassword1" class="form-label">Old Password</label>
           <input type="password" class="form-control" name="old_password">
         </div>
@@ -95,16 +90,6 @@
         <div class="mb-3 col-md-auto">
           <label for="exampleInputPassword1" class="form-label">Confirm Password</label>
           <input type="password" class="form-control" name="confirm_password">
-        </div>
-        <div class = "w-100"></div>
-        <div class="mb-3 col-md-auto">
-          <label for="exampleInputPassword1" class="form-label">Department</label>
-          <select class="form-select" aria-label="Default select example" name="department">
-            <option selected>{{ SESSION_USER.department }}</option>
-            {% for department in DEPARTMENT_LIST %}
-              <option value="{{ department.adress }}"> {{ department.adress }} </option>
-            {% endfor %}
-          </select>
         </div>
         <div class = "w-100"></div>
         <div class="mb-3 col-md-auto form-check">
