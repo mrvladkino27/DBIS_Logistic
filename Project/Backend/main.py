@@ -376,6 +376,10 @@ def download_invoice():
                     download_file.write(f"Статус відправлення: {status_text[order.status]}\n")
                     download_file.write(f"{'_'*60}\nВартість послуги: {order.price}\n")
 
+                print(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], file_name).replace('\\','/'))
+                print(app.config['UPLOAD_FOLDER'])
+                print(app.root_path.replace('\\','/'))
+
                 return send_from_directory(directory = app.config['UPLOAD_FOLDER'], path = app.root_path.replace('\\','/'), filename = file_name, as_attachment = True)
             except Exception as err:
                 flash(str(err), 'Error')
