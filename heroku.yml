@@ -1,5 +1,3 @@
 build:
   docker:
     web: ./Project/Backend/Dockerfile
-run:
-  web: bundle exec thin start -p 5000
