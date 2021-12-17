@@ -97,7 +97,7 @@
           <select class="form-select" name="department" aria-label="Default select example">
             <option selected>Choose your department</option>
             {% for department in TEST_DEPARTMENT_LIST %}
-            <option value={{ department.adress }}> {{ department.adress }} </option>
+            <option value="{{ department.adress }}"> {{ department.adress }} </option>
             {% endfor %}
           </select>
         </div>
