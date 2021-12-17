@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = config(os.path.join(app.root_path, 'database.ini'))
-app.config['UPLOAD_FOLDER'] = '/Download'
+app.config['UPLOAD_FOLDER'] = 'Download'
 
 uri = os.environ['DATABASE_URL']
 if uri.startswith("postgres://"):
