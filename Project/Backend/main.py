@@ -330,7 +330,7 @@ def create_order():
                 send_dep = session_user.department
                 recieve_dep = request.form['recieve_dep']
                 size = int(request.form['size'])
-                distane = get_distance(send_dep, recieve_dep)
+                distance = get_distance(send_dep, recieve_dep)
                 if distance.distance:
                     price  = 30 + ( 0.35 * distance.distance * math.log2(size) )
                 else:
@@ -357,7 +357,7 @@ def download_invoice():
         else:
             try:
                 order = Order.query.filter_by(id = id).first()
-                distane = get_distance(order.send_dep, order.recieve_dep)
+                distance = get_distance(order.send_dep, order.recieve_dep)
                 if not distance.distance:
                     flash("У базі немає відомомстей про відстані між обраними відділеннями.", "Error")
                     return redirect(url_for('show_cabinet'))
