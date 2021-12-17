@@ -360,6 +360,11 @@ def download_invoice():
             return redirect(url_for('show_cabinet'))
         else:
             try:
+                
+                log.info(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], f"Invoice_{id}.txt").replace('\\','/'))
+                log.info(app.config['UPLOAD_FOLDER'])
+                log.info(app.root_path.replace('\\','/'))
+
                 order = Order.query.filter_by(id = id).first()
                 distance = get_distance(order.send_dep, order.recieve_dep)
                 if not distance.distance:
@@ -379,10 +384,6 @@ def download_invoice():
                     download_file.write(f"Розмір відправлення: {size_text[order.size]}\n")
                     download_file.write(f"Статус відправлення: {status_text[order.status]}\n")
                     download_file.write(f"{'_'*60}\nВартість послуги: {order.price}\n")
-
-                log.info(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], file_name).replace('\\','/'))
-                log.info(app.config['UPLOAD_FOLDER'])
-                log.info(app.root_path.replace('\\','/'))
 
                 return send_from_directory(directory = app.config['UPLOAD_FOLDER'], path = app.root_path.replace('\\','/'), filename = file_name, as_attachment = True)
             except Exception as err:
