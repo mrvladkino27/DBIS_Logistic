@@ -10,7 +10,6 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
 app.config['UPLOAD_FOLDER'] = 'Download\\'
- 
 
 uri = os.environ['DATABASE_URL']
 if uri.startswith("postgres://"):
@@ -394,4 +393,5 @@ def add_department_distance():
 
 if __name__ == "__main__":
     # db.create_all()
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, port=port)
