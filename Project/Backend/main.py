@@ -1,19 +1,15 @@
 from flask import Flask, request, flash, url_for, redirect, render_template, send_from_directory
 from hashlib import sha256
+from config import config
 from flask_sqlalchemy import SQLAlchemy
 import math
 import os
-import logging
-
-
-log = logging.getLogger(__name__)
 
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/Logistic'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
-app.config['UPLOAD_FOLDER'] = 'Download'
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = config(os.path.join(app.root_path, 'database.ini'))
+app.config['UPLOAD_FOLDER'] = '/Download'
 
 uri = os.environ['DATABASE_URL']
 if uri.startswith("postgres://"):
@@ -136,6 +132,12 @@ def update_orders_status(from_dep, to_dep):
                     Order.query.filter_by(id = key).update({'status': True})
         db.session.commit()
 
+def check_new_dep_distance_failed(departments):
+    for dep in departments:
+        if departments[dep] == '':
+            return True
+    return False
+
 @app.route('/')
 def index():
     if session_user.role != '':
@@ -175,7 +177,12 @@ def show_login():
 
 @app.route('/user/cabinet')
 def show_cabinet():
-    return render_template('cabinet.html', SESSION_USER = session_user, SEND_ORDER_LIST = Order.query.filter_by(sender = session_user.email).order_by(Order.id), RECIEVE_ORDER_LIST = Order.query.filter_by(reciever = session_user.email).order_by(Order.id), ORDER_STATUS = status_text)
+    if session_user.role == 'USER':
+        return render_template('cabinet.html', SESSION_USER = session_user, SEND_ORDER_LIST = Order.query.filter_by(sender = session_user.email).order_by(Order.id), RECIEVE_ORDER_LIST = Order.query.filter_by(reciever = session_user.email).order_by(Order.id), ORDER_STATUS = status_text)
+    elif session_user.role == 'WORKER':
+        return render_template('cabinet.html', SESSION_USER = session_user, SEND_ORDER_LIST = Order.query.filter_by(send_dep=session_user.department).order_by(Order.id.desc()), RECIEVE_ORDER_LIST = Order.query.filter_by(recieve_dep = session_user.department).order_by(Order.id.desc()), ORDER_STATUS = status_text)
+    else:
+        redirect(url_for('show_login'))
 
 @app.route('/user/create_order')
 def show_create_ord():
@@ -205,10 +212,12 @@ def registrate_user():
                     role = "USER"
                     user = User(email, password, name, department, role)
                     db.session.add(user)
+                    flash("Реєстрація пройшла успішно.")
+                    return redirect(url_for('index'))
                 except:
                     flash('Виникли деякі проблеми з реєстрацією користувача.', 'Error')
             db.session.commit()
-            return redirect(url_for("index"))
+            return redirect(url_for("show_reg"))
         else:
             flash("Паролі не відповідають один одному", "Error")
     return redirect(url_for("show_reg"))
@@ -386,24 +395,36 @@ def download_invoice():
                 return redirect(url_for('show_cabinet'))
     return redirect(url_for("show_cabinet"))
 
-@app.route('/department/add_department_distance', methods=['POST'])
+@app.route('/user/change_department', methods=['POST'])
 def add_department_distance():
     if (request.method == 'POST'):
-        if not request.form['first_dep'] or not request.form['second_dep'] or not request.form['distance']:
-            flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
+        if check_new_dep_distance_failed(request.form):
+            flash('Будь ласка, заповніть усі необхідні поля.', 'Error')       
         else:
-            try:
-                first_dep = request.form['first_dep']
-                second_dep = request.form['second_dep']
-                distance_1_2 = request.form['distance']
-                distance = Distance(first_dep, second_dep, distance_1_2)
-                db.session.add(distance)
-            except:
-                flash('Something went wrong with saving distance.', 'Error')
-        return redirect(url_for("index"))
-    return redirect(url_for("login"))
+            department_dict = dict(request.form)
+            first_dep = ''
+            del department_dict['Submit']
+
+            for department in department_dict:
+                try:
+                    if department == 'first_adress':
+                        first_dep = department_dict[department]
+                        new_dep = Department(first_dep)
+                        db.session.add(new_dep)
+                        second_dep = department_dict[department]
+                        distance_1_2 = 0
+                    else:
+                        second_dep = department
+                        distance_1_2 = int(department_dict[department])
+                    distance = Distance(first_dep, second_dep, distance_1_2)
+                    db.session.add(distance)
+                    db.session.commit()
+                except Exception as err:
+                    flash(str(err), 'Error')
+            flash("Нове відділення успішно створено.Список віддідень можна побачити в \"Наших відділеннях\"")
+        return redirect(url_for('index'))
+    return redirect(url_for('show_change_department'))
 
 if __name__ == "__main__":
     # db.create_all()
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, port=port, host="0.0.0.0")
+    app.run(debug=True)
