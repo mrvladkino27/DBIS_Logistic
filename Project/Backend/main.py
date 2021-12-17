@@ -4,7 +4,7 @@ from config import config
 from flask_sqlalchemy import SQLAlchemy
 import math
 import os
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
