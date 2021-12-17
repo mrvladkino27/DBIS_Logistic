@@ -4,6 +4,7 @@ from config import config
 from flask_sqlalchemy import SQLAlchemy
 import math
 import os
+from werkzeug import secure_filename
 
 
 app = Flask(__name__)
@@ -374,12 +375,12 @@ def download_invoice():
                 if not distance.distance:
                     flash("У базі немає відомомстей про відстані між обраними відділеннями.", "Error")
                     return redirect(url_for('show_cabinet'))
-                file_name = f"Invoice_{id}.txt"
+                file_name = secure_filename(f"Invoice_{id}.txt")
 
-                for file in os.listdir(os.path.join(app.root_path, app.config['UPLOAD_FOLDER']).replace('\\','/')):
-                    os.remove(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], file).replace('\\','/'))
+                for file in os.listdir(app.config['UPLOAD_FOLDER']):
+                    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], file))
 
-                with open(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], file_name).replace('\\','/'), encoding='utf-8', mode='w') as download_file:
+                with open(os.path.join(app.config['UPLOAD_FOLDER'], file_name), encoding='utf-8', mode='w') as download_file:
                     download_file.write(f"\n{'='*60}\n{' '*20}Логістична компанія{' '*10}\n")
                     download_file.write(f"{'='*16} Накладна відправлення №{id} {'='*16}\n\n")
                     download_file.write(f"Від: '{order.sender}'\t     ->  \tКому: '{order.reciever}'\n")
@@ -427,4 +428,5 @@ def add_department_distance():
 
 if __name__ == "__main__":
     # db.create_all()
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, port=port, host="0.0.0.0")
