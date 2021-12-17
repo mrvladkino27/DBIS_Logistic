@@ -4,3 +4,9 @@ services:
     build: .
     ports:
       - "5000:5000"
+    volumes:
+      - type: bind
+        source: .
+        target: /logistics
+    environment:
+      FLASK_ENV: development

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM python:3.9-bullseye
-WORKDIR .
+WORKDIR /logistics
 ENV FLASK_APP=main.py
 ENV FLASK_RUN_HOST=0.0.0.0
 COPY requirements.txt requirements.txt
