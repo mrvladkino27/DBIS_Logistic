@@ -13,7 +13,7 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/Logistic'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
-app.config['UPLOAD_FOLDER'] = 'Download\\'
+app.config['UPLOAD_FOLDER'] = 'Download'
 
 uri = os.environ['DATABASE_URL']
 if uri.startswith("postgres://"):
@@ -360,11 +360,6 @@ def download_invoice():
             return redirect(url_for('show_cabinet'))
         else:
             try:
-
-                log.info(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], f"Invoice_{id}.txt").replace('\\','/'))
-                log.info(app.config['UPLOAD_FOLDER'])
-                log.info(app.root_path.replace('\\','/'))
-
                 order = Order.query.filter_by(id = id).first()
                 distance = get_distance(order.send_dep, order.recieve_dep)
                 if not distance.distance:
