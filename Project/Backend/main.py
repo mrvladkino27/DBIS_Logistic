@@ -6,8 +6,8 @@ import os
 
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234567890@localhost/Logistic'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qazedc123@localhost/Logistic'
 app.config['UPLOAD_FOLDER'] = 'Download\\'
  
 
@@ -171,7 +171,7 @@ def show_login():
 
 @app.route('/user/cabinet')
 def show_cabinet():
-    return render_template('cabinet.html', SESSION_USER = session_user, SEND_ORDER_LIST = Order.query.filter_by(sender = session_user.email).order_by(Order.id), RECIEVE_ORDER_LIST = Order.query.filter_by(reciever = session_user.email).order_by(Order.id))
+    return render_template('cabinet.html', SESSION_USER = session_user, SEND_ORDER_LIST = Order.query.filter_by(sender = session_user.email).order_by(Order.id), RECIEVE_ORDER_LIST = Order.query.filter_by(reciever = session_user.email).order_by(Order.id), ORDER_STATUS = status_text)
 
 @app.route('/user/create_order')
 def show_create_ord():
@@ -238,7 +238,6 @@ def registrate_worker():
 
 @app.route('/user/update', methods=['POST', 'GET'])
 def update_user():
-
     if request.method == 'POST':
         if not request.form['old_password']:
             flash('Будь ласка, заповніть усі необхідні поля.', 'Error')
@@ -267,7 +266,7 @@ def update_user():
                 db.session.add(user)
             except Exception as err:
                 flash(str(err), 'Error')
-                return redirect(url_for('show_cabinet')) #######!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                return redirect(url_for('show_cabinet'))
         else:
             flash('You need to log in to edit user info', 'Error')
         db.session.commit()

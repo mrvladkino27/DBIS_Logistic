@@ -66,23 +66,23 @@
       <div class = "row">
 
       <div class = "col">
-      <h1> Add New Department </h1>
+        <h1> Add New Department </h1>
 
-      <form class = "row" method = "POST" action = "{{ request.path }}">
-        <div class="mb-3 col-md-auto">
-          <label for="exampleInputEmail1" class="form-label">Department Adress</label>
-          <input type="text" class="form-control" name="adress" aria-describedby="emailHelp">
-          {% for department in DEPARTMENT_LIST %}
+        <form class = "row" method = "POST" action = "{{ request.path }}">
+          <div class="mb-3 col-md-auto">
+            <label for="exampleInputEmail1" class="form-label">Department Adress</label>
+            <input type="text" class="form-control" name="adress" aria-describedby="emailHelp">
+            {% for department in DEPARTMENT_LIST %}
 
-            <label for="exampleInputEmail1" class="form-label">Range to {{ department.adress }}</label>
-            <input type="number" class="form-control" name="{{ department }}}" aria-describedby="emailHelp">
+              <label for="exampleInputEmail1" class="form-label">Range to {{ department.adress }}</label>
+              <input type="number" class="form-control" name="{{ department }}}" aria-describedby="emailHelp">
 
-          {% endfor %}
-        </div>
+            {% endfor %}
+          </div>
           <input type="submit" name="Submit" />
+          <div class = "w-100"></div>
+        </form>
       </div>
-        <div class = "w-100"></div>
-      </form>
 
 
       <div class = "col">
