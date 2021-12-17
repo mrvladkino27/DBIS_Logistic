@@ -271,7 +271,7 @@ def update_user():
                 else:
                     name = None
                 # user = User(email, password, name, department, session_user.role)
-                User.query.filter_by(id = session_user.email).update({'password': password, 'name': name})
+                User.query.filter_by(email = session_user.email).update({'password': password, 'name': name})
                 # db.session.delete(session_user)
                 # db.session.add(user)
             except Exception as err:
