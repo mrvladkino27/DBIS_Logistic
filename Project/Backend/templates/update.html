@@ -33,7 +33,9 @@
                 <li><a href = "{{ url_for('show_change_department') }}">Змінити департаменти</a></li>
                 
               {% endif %}
+              {% if SESSION_USER.role == "USER" %}
               <li><a href = "{{ url_for('show_create_ord') }}">Зробити замовлення</a></li>
+              {% endif %}
               <li><a href = "{{ url_for('show_cabinet') }}">Особистий кабінет</a></li>
               <li><a href = "{{ url_for('show_exit') }}">Вийти</a></li>
             </ul>
