@@ -35,7 +35,9 @@
                 <li><a href = "{{ url_for('show_change_department') }}">Змінити департаменти</a></li>
                 
               {% endif %}
+              {% if SESSION_USER.role == "USER" %}
               <li><a href = "{{ url_for('show_create_ord') }}">Зробити замовлення</a></li>
+              {% endif %}
               <li><a href = "{{ url_for('show_cabinet') }}">Особистий кабінет</a></li>
               <li><a href = "{{ url_for('show_exit') }}">Вийти</a></li>
             </ul>
@@ -71,15 +73,15 @@
         <form class = "row" method = "POST" action = "{{ request.path }}">
           <div class="mb-3 col-md-auto">
             <label for="exampleInputEmail1" class="form-label">Department Adress</label>
-            <input type="text" class="form-control" name="adress" aria-describedby="emailHelp">
+            <input type="text" class="form-control" name="first_adress" aria-describedby="emailHelp">
             {% for department in DEPARTMENT_LIST %}
 
-              <label for="exampleInputEmail1" class="form-label">Range to {{ department.adress }}</label>
-              <input type="number" class="form-control" name="{{ department }}}" aria-describedby="emailHelp">
+              <label for="exampleInputEmail1" class="form-label">Відстань до відділення {{ department.adress }}</label>
+              <input type="number" class="form-control" name="{{ department.adress }}" aria-describedby="emailHelp" min="0" max="56180" required>
 
             {% endfor %}
           </div>
-          <input type="submit" name="Submit" />
+          <input type="submit" name="Submit" value="Зберегти"/>
           <div class = "w-100"></div>
         </form>
       </div>
