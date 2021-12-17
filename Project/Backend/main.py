@@ -213,6 +213,7 @@ def registrate_user():
                     role = "USER"
                     user = User(email, password, name, department, role)
                     db.session.add(user)
+                    db.session.commit()
                     flash("Реєстрація пройшла успішно.")
                     return redirect(url_for('index'))
                 except:
