@@ -323,6 +323,8 @@ def create_order():
                 recieve_dep = request.form['recieve_dep']
                 size = int(request.form['size'])
                 distance = Distance.query.filter_by(first_dep = send_dep, second_dep=recieve_dep).first()
+                if not distance:
+                    distance = Distance.query.filter_by(first_dep = recieve_dep, second_dep=send_dep).first()
                 if distance.distance:
                     price  = 30 + ( 0.35 * distance.distance * math.log2(size) )
                 else:

@@ -1,23 +1,23 @@
 BEGIN;
 
 
-CREATE TABLE public."Department"
+CREATE TABLE public."department"
 (
     adress character varying(256) NOT NULL,
     PRIMARY KEY (adress)
 );
 
-CREATE TABLE public."User"
+CREATE TABLE public."user"
 (
-    "e-mail" character varying(64) NOT NULL,
+    email character varying(64) NOT NULL,
     password character varying(64) NOT NULL,
     name character varying(64),
     department character varying(256) NOT NULL,
     role character varying(32) NOT NULL,
-    PRIMARY KEY ("e-mail")
+    PRIMARY KEY (email)
 );
 
-CREATE TABLE public."Distance"
+CREATE TABLE public."distance"
 (
     first_dep character varying(256) NOT NULL,
     second_dep character varying(256) NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE public."Distance"
     PRIMARY KEY (first_dep, second_dep)
 );
 
-CREATE TABLE public."Order"
+CREATE TABLE public."order"
 (
     id bigint NOT NULL,
     sender character varying(64) NOT NULL,
@@ -38,45 +38,45 @@ CREATE TABLE public."Order"
     PRIMARY KEY (id)
 );
 
-ALTER TABLE public."User"
+ALTER TABLE public."user"
     ADD FOREIGN KEY (department)
-    REFERENCES public."Department" (adress)
+    REFERENCES public."department" (adress)
     NOT VALID;
 
 
-ALTER TABLE public."Distance"
+ALTER TABLE public."distance"
     ADD FOREIGN KEY (first_dep)
-    REFERENCES public."Department" (adress)
+    REFERENCES public."department" (adress)
     NOT VALID;
 
 
-ALTER TABLE public."Distance"
+ALTER TABLE public."distance"
     ADD FOREIGN KEY (second_dep)
-    REFERENCES public."Department" (adress)
+    REFERENCES public."department" (adress)
     NOT VALID;
 
 
-ALTER TABLE public."Order"
+ALTER TABLE public."order"
     ADD FOREIGN KEY (sender)
-    REFERENCES public."User" ("e-mail")
+    REFERENCES public."user" (email)
     NOT VALID;
 
 
-ALTER TABLE public."Order"
+ALTER TABLE public."order"
     ADD FOREIGN KEY (reciever)
-    REFERENCES public."User" ("e-mail")
+    REFERENCES public."user" (email)
     NOT VALID;
 
 
-ALTER TABLE public."Order"
+ALTER TABLE public."order"
     ADD FOREIGN KEY (send_dep)
-    REFERENCES public."Department" (adress)
+    REFERENCES public."department" (adress)
     NOT VALID;
 
 
-ALTER TABLE public."Order"
+ALTER TABLE public."order"
     ADD FOREIGN KEY (recieve_dep)
-    REFERENCES public."Department" (adress)
+    REFERENCES public."department" (adress)
     NOT VALID;
 
 END;
