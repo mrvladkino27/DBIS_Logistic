@@ -72,11 +72,11 @@
 
         <form class = "row" method = "POST" action = "{{ request.path }}">
           <div class="mb-3 col-md-auto">
-            <label for="exampleInputEmail1" class="form-label">Department Adress</label>
+            <label for="exampleInputEmail1" class="form-label">Адреса відділення:</label>
             <input type="text" class="form-control" name="first_adress" aria-describedby="emailHelp">
             {% for department in DEPARTMENT_LIST %}
 
-              <label for="exampleInputEmail1" class="form-label">Відстань до відділення {{ department.adress }}</label>
+              <label for="exampleInputEmail1" class="form-label">Відстань до відділення {{ department.adress }}:</label>
               <input type="number" class="form-control" name="{{ department.adress }}" aria-describedby="emailHelp" min="0" max="56180" required>
 
             {% endfor %}

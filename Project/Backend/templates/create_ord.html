@@ -31,7 +31,7 @@
             {% if SESSION_USER.role != "" %}
             <ul>
               {% if SESSION_USER.role == "WORKER" %}
-                <li><a href = "{{ url_for('show_reg_del') }}">Зареєструвати воркера</a></li>
+                <li><a href = "{{ url_for('show_reg_del') }}">Зареєструвати співробітника</a></li>
                 <li><a href = "{{ url_for('show_change_department') }}">Змінити департаменти</a></li>
                 
               {% endif %}
@@ -75,12 +75,12 @@
 
           <form class = "row" method = "POST" action = "{{ request.path }}">
             <div class="mb-3 col-md-auto">
-              <label for="exampleInputEmail1" class="form-label">Receiver email</label>
+              <label for="exampleInputEmail1" class="form-label">Пошта одержувача</label>
               <input type="email" class="form-control" name="reciever" aria-describedby="emailHelp">
             </div>
             <div class = "w-100"></div>
             <div class="mb-3 col-md-auto">
-              <label for="exampleInputPassword1" class="form-label">Target Department</label>
+              <label for="exampleInputPassword1" class="form-label">Цільове відділення</label>
               <select class="form-select" name="recieve_dep" aria-label="Default select example">
                 <option selected>Choose target department</option>
                 {% for department in TEST_DEPARTMENT_LIST %}
@@ -90,7 +90,7 @@
             </div>
             <div class = "w-100"></div>
             <div class="mb-3 col-md-auto">
-              <label for="exampleInputPassword1" class="form-label">Package Size</label>
+              <label for="exampleInputPassword1" class="form-label">Розмір пакунку</label>
               <select class="form-select" name="size" aria-label="Default select example">
                 <option selected>Choose Package Size</option>
                 <option value="2">S</option>
@@ -101,7 +101,7 @@
             </div>
             <div class = "w-100"></div>
             <div class="mb-3 col-md-auto form-check">
-              <button type="submit" class="btn btn-primary">Submit</button>
+              <button type="submit" class="btn btn-primary">Підтвердити</button>
             <div class = "w-100"></div>
           </form>
         </div>

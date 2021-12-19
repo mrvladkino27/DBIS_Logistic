@@ -66,6 +66,27 @@
     <img src="img/meme.jpg" class="rounded mx-auto d-block">
 
 
+
+    <div class="row">
+
+      <div class="col">
+        <h2>Наші відділення!</h2>
+        {%- for department in DEPARTMENT_LIST %}
+          <li> {{ department.adress }} </li>
+        {%- endfor %}
+      </div>
+
+      <div class="col">
+        <h2>Наші можливі розміри!</h2>
+          <li>S</li>
+          <li>M</li>
+          <li>L</li>
+          <li>XL</li>
+      </div>
+      
+    </div>
+
+
     {%- for category, message in get_flashed_messages(with_categories = true) %}
       <div class = "alert alert-danger" style="color:red; font-size:25px;">
         {{ message }}
