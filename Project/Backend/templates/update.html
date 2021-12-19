@@ -73,22 +73,22 @@
 
       <form class = "row" method = "POST" action = "{{ request.path }}">
         <div class="mb-3 col-md-auto">
-          <label for="exampleInputEmail1" class="form-label">Name</label>
+          <label for="exampleInputEmail1" class="form-label">Ім'я</label>
           <input type="text" class="form-control" name="name" aria-describedby="emailHelp" placeholder="{{ SESSION_USER.name }}">
         </div>
         <div class = "w-100"></div>
         <div class="mb-3 col-md-auto">
-          <label for="exampleInputPassword1" class="form-label">Old Password</label>
+          <label for="exampleInputPassword1" class="form-label">Старий пароль</label>
           <input type="password" class="form-control" name="old_password">
         </div>
         <div class = "w-100"></div>
         <div class="mb-3 col-md-auto">
-          <label for="exampleInputPassword1" class="form-label">Password</label>
+          <label for="exampleInputPassword1" class="form-label">Новий пароль</label>
           <input type="password" class="form-control" name="password">
         </div>
         <div class = "w-100"></div>
         <div class="mb-3 col-md-auto">
-          <label for="exampleInputPassword1" class="form-label">Confirm Password</label>
+          <label for="exampleInputPassword1" class="form-label">Підтвердження нового пароля</label>
           <input type="password" class="form-control" name="confirm_password">
         </div>
         <div class = "w-100"></div>
