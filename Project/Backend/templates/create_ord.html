@@ -67,11 +67,10 @@
     <div class = "container">
       <div class = "row">
         <div class = "col">
-          <img src="img/meme3.jpg" class="rounded float-start">
         </div>
         <div class = "col">
 
-          <h1> Create Order </h1>
+          <h1> Створити замовлення </h1>
 
           <form class = "row" method = "POST" action = "{{ request.path }}">
             <div class="mb-3 col-md-auto">
@@ -82,7 +81,7 @@
             <div class="mb-3 col-md-auto">
               <label for="exampleInputPassword1" class="form-label">Цільове відділення</label>
               <select class="form-select" name="recieve_dep" aria-label="Default select example">
-                <option selected>Choose target department</option>
+                <option selected>Оберіть цільове відділення</option>
                 {% for department in TEST_DEPARTMENT_LIST %}
                 <option value={{ department.adress }}> {{ department.adress }} </option>
                 {% endfor %}
@@ -107,7 +106,6 @@
         </div>
         </div>
         <div class = "col">
-          <img src="img/meme3.jpg" class="rounded float-end">
         </div>
       </div>
     </div>
