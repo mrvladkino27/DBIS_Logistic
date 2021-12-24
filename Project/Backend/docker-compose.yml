@@ -5,8 +5,26 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - type: bind
-        source: .
-        target: /logistics
+      - .:/logistics
     environment:
       FLASK_ENV: development
+  db:
+    container_name: postgres_db
+    image: postgres:13.3
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: "Logistic"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ../DB/init:/docker-entrypoint-initdb.d
+      - ../DB:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4:5.7
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "root"

@@ -6,20 +6,25 @@ import math
 import os
 from werkzeug.utils import secure_filename
 
+USE_HEROKU = False
 
 app = Flask(__name__)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = config(os.path.join(app.root_path, 'database.ini'))
-app.config['UPLOAD_FOLDER'] = 'Download'
+if USE_HEROKU:
+    uri = os.environ['DATABASE_URL']
+    if uri.startswith("postgres://"):
+        uri = uri.replace("postgres://", "postgresql://", 1)
 
-uri = os.environ['DATABASE_URL']
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = uri
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@postgres_db/Logistic'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = uri
+
 
 app.config['SECRET_KEY'] = "string"
 app.config['SQLALCHEMY_ECHO'] = True
+app.config['UPLOAD_FOLDER'] = 'Download'
+
 db = SQLAlchemy(app)
 
 class Department(db.Model):
